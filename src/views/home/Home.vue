@@ -3,7 +3,13 @@
     <NavBar class="homeNav">
       <div slot="center">购物街</div>
     </NavBar>
-    <TabControl :title="['流行','新款','精选']" class="tabcontor" @tabClick="tabClick" ref="tabcontent1" v-show="tabfixed"></TabControl>
+    <TabControl
+      :title="['流行','新款','精选']"
+      class="tabcontor"
+      @tabClick="tabClick"
+      ref="tabcontent1"
+      v-show="tabfixed"
+    ></TabControl>
     <Scroll
       class="content"
       ref="scroll"
@@ -39,6 +45,7 @@ import BackTop from "components/content/backTop/BackTop";
 
 import { getHomeMultidata, getHomeGoods } from "network/home";
 import { debounce } from "common/utils";
+import {itemListenerMixin} from "common/mixin"
 
 export default {
   data() {
@@ -56,9 +63,10 @@ export default {
       isshow: false,
       taboffSetTop: null,
       tabfixed: false,
-      saveY:0,
+      saveY: 0,
     };
   },
+  mixins:[itemListenerMixin],
   components: {
     HomeSwiper,
     HomeRecommendView,
@@ -76,13 +84,7 @@ export default {
     this.getHomeGoods("new");
     this.getHomeGoods("sell");
   },
-  mounted() {
-    const refresh = debounce(this.$refs.scroll.refresh, 500);
-    //监听item里图片加载完成
-    this.$bus.$on("itemimageload", () => {
-      refresh();
-    });
-  },
+  
   methods: {
     /**
      * 网络请求事件
@@ -123,8 +125,8 @@ export default {
           this.currentType = "sell";
           break;
       }
-      this.$refs.tabcontent1.currentIndex=index
-      this.$refs.tabcontent2.currentIndex=index
+      this.$refs.tabcontent1.currentIndex = index;
+      this.$refs.tabcontent2.currentIndex = index;
     },
     backClick() {
       this.$refs.scroll.scrollTo(0, 0, 1000);
@@ -133,7 +135,7 @@ export default {
       //判断backTOp是否显示
       this.isshow = -position.y > 1000;
       //决定tabcontrol是否吸顶
-      this.tabfixed = -(position.y) > this.taboffSetTop;
+      this.tabfixed = -position.y > this.taboffSetTop;
     },
     pullingUpclick() {
       this.getHomeGoods(this.currentType);
@@ -146,12 +148,13 @@ export default {
     }
   },
   activated() {
-    this.$refs.scroll.scrollTo(0,this.saveY,0)
-    this.$refs.scroll.refresh()
+    this.$refs.scroll.scrollTo(0, this.saveY, 0);
+    this.$refs.scroll.refresh();
   },
   deactivated() {
-    this.saveY =this.$refs.scroll.scroll.y
-  },
+    this.saveY = this.$refs.scroll.scroll.y;
+    this.$bus.$off("itemimageload", this.itemImgListener); 
+  }
 };
 </script>
   
@@ -164,7 +167,7 @@ export default {
   background-color: var(--color-tint);
   color: #fff;
 }
-.tabcontor{
+.tabcontor {
   position: relative;
   z-index: 9;
   background-color: #fff;

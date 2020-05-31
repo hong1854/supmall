@@ -1,6 +1,6 @@
 <template>
   <div class="goods">
-    <GoodsListItem v-for="item in goods" :goodsItem="item" :key="item.show.img"></GoodsListItem>
+    <GoodsListItem v-for="item in goods" :goodsItem="item" :key="item.link"></GoodsListItem>
   </div>
 </template>
 <script>
@@ -16,7 +16,7 @@ export default {
   },
   components:{
     GoodsListItem,
-  }
+  },
 };
 </script>
 
