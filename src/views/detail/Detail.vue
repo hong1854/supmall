@@ -10,6 +10,8 @@
       <DetailCommentInfo :commentInfo="commentInfo" ref="comments"></DetailCommentInfo>
       <GoodsList :goods="commend" ref="commend"></GoodsList>
     </Scroll>
+    <DetailBottomBar @addcart="addcart"></DetailBottomBar>
+    <BackTop class="back-top" @click.native="backClick" v-show="isshow"></BackTop>
   </div>
 </template>
 <script>
@@ -20,13 +22,15 @@ import DetailShopInfo from "./childComps/DetailShopInfo";
 import DetailInfo from "./childComps/DetailInfo"
 import DetailGoodsParam from "./childComps/DetailGoodsParam"
 import DetailCommentInfo from "./childComps/DetailCommentInfo"
+import DetailBottomBar from "./childComps/DetailBottomBar"
+
 
 import Scroll from "components/common/scroll/Scroll";
 import GoodsList from "components/content/goods/GoodsList"
 
 import { getDetail, goods, shop ,GoodsParam ,getcommend} from "network/detail";
 import {debounce} from "common/utils"
-import {itemListenerMixin} from "common/mixin"
+import {itemListenerMixin ,BackTopMixin} from "common/mixin"
 export default {
   name: "Detail",
   data() {
@@ -41,16 +45,15 @@ export default {
       commend:[],
       themeTopYs:[],
       getThemeTop:null,
-      currentIndex:null
+      currentIndex:null,
     };
   },
-  mixins:[itemListenerMixin],
+  mixins:[itemListenerMixin,BackTopMixin],
   created() {
     this.iid = this.$route.params.iid;
     getDetail(this.iid).then(res => {
       const data = res.data.result;
-      this.topimages = data.itemInfo.topImages;
-
+      this.topimages = data.itemInfo.topImages;   
       this.goods = new goods(
         data.itemInfo,
         data.columns,
@@ -85,6 +88,7 @@ export default {
     DetailGoodsParam,
     DetailCommentInfo,
     GoodsList,
+    DetailBottomBar,
   },
   methods:{
     imgload(){
@@ -102,7 +106,18 @@ export default {
           this.currentIndex =i
           this.$refs.nabvar.currentIndex=this.currentIndex
         }
+        this.isshow = -position.y > 1000;
       }
+      
+    },
+    addcart(){
+      const product ={};
+      product.image =this.topimages[0];
+      product.title =this.goods.title;
+      product.desc =this.goods.desc;
+      product.realPrice =this.goods.realPrice;
+      product.iid=this.iid;
+      this.$store.commit('addCart',product)
     }
   },
   destroyed() {
@@ -118,7 +133,7 @@ export default {
   height:100vh;
 }
 .conent{
-  height:calc(100% - 44px);
+  height:calc(100% - 44px - 49px);
 }
 .detail-nav{
   position: relative;

@@ -41,11 +41,10 @@ import NavBar from "components/common/navbar/NavBar";
 import TabControl from "components/content/tabControl/TabControl.vue";
 import GoodsList from "components/content/goods/GoodsList";
 import Scroll from "components/common/scroll/Scroll";
-import BackTop from "components/content/backTop/BackTop";
 
 import { getHomeMultidata, getHomeGoods } from "network/home";
 import { debounce } from "common/utils";
-import {itemListenerMixin} from "common/mixin"
+import {itemListenerMixin ,BackTopMixin} from "common/mixin"
 
 export default {
   data() {
@@ -60,13 +59,12 @@ export default {
         sell: { page: 0, list: [] }
       },
       currentType: "pop",
-      isshow: false,
       taboffSetTop: null,
       tabfixed: false,
       saveY: 0,
     };
   },
-  mixins:[itemListenerMixin],
+  mixins:[itemListenerMixin,BackTopMixin],
   components: {
     HomeSwiper,
     HomeRecommendView,
@@ -76,7 +74,6 @@ export default {
     TabControl,
     GoodsList,
     Scroll,
-    BackTop
   },
   created() {
     this.getHomeMultidata();
@@ -127,9 +124,6 @@ export default {
       }
       this.$refs.tabcontent1.currentIndex = index;
       this.$refs.tabcontent2.currentIndex = index;
-    },
-    backClick() {
-      this.$refs.scroll.scrollTo(0, 0, 1000);
     },
     conetentscroll(position) {
       //判断backTOp是否显示
